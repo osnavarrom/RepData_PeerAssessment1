@@ -1,20 +1,6 @@
----
-title: 'Reproducible Research: Peer Assessment 1'
-author: "Oscar Saul Navarro-Morato"
-date: "Thursday, June 11, 2015"
-output:
-  pdf_document:
-    highlight: tango
-    keep_tex: yes
-    latex_engine: pdflatex
-    number_sections: yes
-    toc: yes
-  html_document:
-    highlight: tango
-    keep_md: yes
-    theme: cosmo
-    toc: yes
----
+# Reproducible Research: Peer Assessment 1
+Oscar Saul Navarro-Morato  
+Thursday, June 11, 2015  
 
 # Introduction
 
@@ -39,12 +25,14 @@ coded as NA)
 First, remove all variables from the environment and we set the chunks options with
 `echo = TRUE` as global option among other for this document.  
 
-```{r setup}
+
+```r
 # Removes all variables from environment
 rm (list = ls (all = TRUE)) 
 ```
 
-```{r set_options}
+
+```r
 #  Setting chunks options
 library(knitr)
 opts_chunk$set(echo = TRUE, results = "markup", warning = FALSE, message = FALSE)
@@ -52,7 +40,8 @@ opts_chunk$set(echo = TRUE, results = "markup", warning = FALSE, message = FALSE
 
 And finally should be loaded necessary "libraries" to perform the analysis.
 
-```{r load_libraries}
+
+```r
 library(plyr)
 library(dplyr)
 library(ggplot2)
@@ -69,7 +58,8 @@ Function check the existence of files in the path defined. In this case
 the containing folder will be `./data/`. If don't exists stops execution of 
 the current action, and execute the appropriate action to obtain the dataset.  
 
-```{r load_data}
+
+```r
 load_data <- function() 
 {       # Dataset check and load 
         data_dir <- paste(getwd(), "/data", sep = "")
@@ -107,23 +97,65 @@ Call and run the `load_data` funtion to assign the raw data to the data frame
 called `data`. The function internally contains the data needed to download, 
 unzip and open the file containing the dataset. 
 
-```{r load_prep_call}
+
+```r
 data <- load_data()
 ```
 
 Here the class of each variable created in dataframe confirmed:
 
-```{r verify_structure}
+
+```r
 str(data)
+```
+
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Date, format: "2012-10-01" "2012-10-01" ...
+##  $ interval: Factor w/ 288 levels "0","10","100",..: 1 226 2 73 136 195 198 209 212 223 ...
+```
+
+```r
 class(data$steps)
+```
+
+```
+## [1] "numeric"
+```
+
+```r
 class(data$date)
+```
+
+```
+## [1] "Date"
+```
+
+```r
 class(data$interval)
+```
+
+```
+## [1] "factor"
 ```
 The next is the `summary` of dataset
 
 
-```{r rawsum_data}
+
+```r
 summary(data)
+```
+
+```
+##      steps             date               interval    
+##  Min.   :  0.00   Min.   :2012-10-01   0      :   61  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   10     :   61  
+##  Median :  0.00   Median :2012-10-31   100    :   61  
+##  Mean   : 37.38   Mean   :2012-10-31   1000   :   61  
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   1005   :   61  
+##  Max.   :806.00   Max.   :2012-11-30   1010   :   61  
+##  NA's   :2304                          (Other):17202
 ```
 # Solution to questions
 
@@ -140,7 +172,8 @@ in the dataset, and generate the inputs to answer:
 To get the daily data needed for the histogram, the count is done for days of 
 the `steps`, the variable of interest.
 
-```{r per_date}
+
+```r
 sum_data <- (data %>%
                  group_by(date)%>%
                  summarize(steps = sum(steps, na.rm = TRUE)) )
@@ -148,7 +181,8 @@ sum_data <- (data %>%
 Since that is needed build a histogram again, with similar characteristics, 
 a function that graph the required histogram is created.
 
-```{r histogram_function}
+
+```r
 plot_hist = function(sum_data, title)
     {
         mean_x <- round(mean(sum_data$steps, na.rm = TRUE), 2)
@@ -175,9 +209,12 @@ This is the histogram that shows the distribution of the number of steps per day
 for a period of two months that you have in the dataset.    
 The mean: **`9354.23`** and median: **`10395`**.
 
-```{r first_hist}
+
+```r
 plot_hist(sum_data, "Histogram - Steps per Day without NA")  
 ```
+
+![](PA1_template_files/figure-html/first_hist-1.png) 
    
 
 ## What is the average daily activity pattern?
@@ -185,7 +222,8 @@ plot_hist(sum_data, "Histogram - Steps per Day without NA")
 Now the time series showing the average number of steps per day for each 
 5-minute interval is presented.
 
-```{r per_interv}
+
+```r
 interv_data <- (data %>%
                  group_by(interval)%>%
                  summarize(steps = mean(steps, na.rm = TRUE)) )
@@ -195,7 +233,8 @@ interv_data$interval <-
     as.integer(levels(interv_data$interval)[interv_data$interval])
 ```
 
-```{r maximum}
+
+```r
 # Find interval that have maximum average steps
 maximum = interv_data[which.max(interv_data$steps), ]
 
@@ -205,7 +244,8 @@ max_lab = paste("Maximum was ", round(maximum$steps, 2), " steps in the ",
 ```
 
 
-```{r time_serie1}
+
+```r
 ggplot(interv_data, aes(x = interval, y = steps)) +
     geom_line(color = "darkolivegreen4", size = 1) +  
     annotate("point", x = maximum$interval, xend = maximum$interval, 
@@ -215,14 +255,21 @@ ggplot(interv_data, aes(x = interval, y = steps)) +
     theme_bw()
 ```
 
+![](PA1_template_files/figure-html/time_serie1-1.png) 
+
 
 ## Imputing missing values
 
 We already been saw the total number of missing values through summary table of 
 data. We proceed with the new instruction for show the number of NA. 
 
-```{r TotalNA}
+
+```r
 sum(is.na(data$steps))
+```
+
+```
+## [1] 2304
 ```
 
 
@@ -232,7 +279,8 @@ values effect on distribution of data. In most of the cases the median is a bett
 centrality measure than mean, but in the present case, the total median is not 
 much far away from total mean.   
 
-```{r fill_data}
+
+```r
 fill_na <- function(data, defaults) {
         na_indices <- which(is.na(data$steps))
         na_replacements <- unlist(lapply(na_indices, FUN=function(idx){
@@ -250,19 +298,34 @@ filled_data <- data.frame(
         interval = data$interval)
 ```
 
-```{r summary_complete_data}
+
+```r
 head(filled_data)
 ```
 
-```{r new_sum}
+```
+##       steps       date interval
+## 1 1.7169811 2012-10-01        0
+## 2 0.3396226 2012-10-01        5
+## 3 0.1320755 2012-10-01       10
+## 4 0.1509434 2012-10-01       15
+## 5 0.0754717 2012-10-01       20
+## 6 2.0943396 2012-10-01       25
+```
+
+
+```r
 newsum_data <- (filled_data %>%
                  group_by(date)%>%
                  summarize(steps = sum(steps, na.rm = TRUE)) )
 ```
 
-```{r second_hist}
+
+```r
 plot_hist(newsum_data, "Histogram - Steps per Day with NA replaced")  
 ```
+
+![](PA1_template_files/figure-html/second_hist-1.png) 
 
 
 Most modeling functions in R offer options for dealing with missing values. 
@@ -283,7 +346,8 @@ We do this comparison with the table with filled-in missing values.
 
 
 
-```{r weekdays}
+
+```r
 weekdays_steps <- function(data) {
     weekdays_steps <- aggregate(data$steps, by=list(interval = data$interval),
                           FUN=mean, na.rm=T)
@@ -297,8 +361,8 @@ weekdays_steps <- function(data) {
 data_by_weekdays <- function(data) {
     data$weekday <- 
             as.factor(weekdays(data$date)) # weekdays in portuguese
-    weekend_data <- subset(data, weekday %in% c("sábado","domingo"))
-    weekday_data <- subset(data, !weekday %in% c("sábado","domingo"))
+    weekend_data <- subset(data, weekday %in% c("sÃ¡bado","domingo"))
+    weekday_data <- subset(data, !weekday %in% c("sÃ¡bado","domingo"))
     
     weekend_steps <- weekdays_steps(weekend_data)
     weekday_steps <- weekdays_steps(weekday_data)
@@ -315,14 +379,16 @@ data_weekdays <- data_by_weekdays(filled_data)
 ```
 
 Below you can see the panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends:
-```{r plot_weekdays}
+
+```r
 ggplot(data_weekdays, aes(x = interval, y = steps)) + 
         geom_line(color = "darkolivegreen4", size = 1) + 
         facet_wrap(~ dayofweek, nrow = 2, ncol = 1) +
         labs(x = "Interval", y="Number of steps") +
         theme_bw()
-
 ```
+
+![](PA1_template_files/figure-html/plot_weekdays-1.png) 
 
   
 ## Conclusion:
