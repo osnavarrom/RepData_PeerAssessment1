@@ -1,6 +1,6 @@
 # Reproducible Research: Peer Assessment 1
 Oscar Saul Navarro-Morato  
-Thursday, June 11, 2015  
+Wednwsday, July 15, 2015  
 
 # Introduction
 
@@ -258,6 +258,9 @@ ggplot(interv_data, aes(x = interval, y = steps)) +
 ![](PA1_template_files/figure-html/time_serie1-1.png) 
 
 
+As shown in figure above, the maximum value is 206.17 steps in
+the  835th interval.
+
 ## Imputing missing values
 
 We already been saw the total number of missing values through summary table of 
@@ -340,7 +343,8 @@ include [Amelia II](http://cran.r-project.org/web/packages/Amelia/),
 
 We do this comparison with the table with filled-in missing values.  
 1. Augment the table with a column that indicates the day of the week  
-2. Subset the table into two parts - weekends (Saturday and Sunday) and weekdays (Monday through Friday).  
+2. Subset the table into two parts - weekends (Saturday and Sunday) and weekdays 
+(Monday through Friday).  
 3. Tabulate the average steps per interval for each data set.  
 4. Plot the two data sets side by side for comparison.  
 
@@ -360,7 +364,7 @@ weekdays_steps <- function(data) {
 
 data_by_weekdays <- function(data) {
     data$weekday <- 
-            as.factor(weekdays(data$date)) # weekdays in portuguese
+            as.factor(weekdays(data$date)) # weekdays in spanish
     weekend_data <- subset(data, weekday %in% c("sábado","domingo"))
     weekday_data <- subset(data, !weekday %in% c("sábado","domingo"))
     
@@ -378,7 +382,8 @@ data_by_weekdays <- function(data) {
 data_weekdays <- data_by_weekdays(filled_data)
 ```
 
-Below you can see the panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends:
+Below you can see the panel plot comparing the average number of steps taken per 
+5-minute interval across weekdays and weekends:
 
 ```r
 ggplot(data_weekdays, aes(x = interval, y = steps)) + 
@@ -393,7 +398,9 @@ ggplot(data_weekdays, aes(x = interval, y = steps)) +
   
 ## Conclusion:
 
-We can see at the graph above that activity on the weekday has the greatest peak from all steps intervals. But, we can see too that weekends activities has more peaks over a hundred than weekday. This could be due to the fact that activities on weekdays mostly follow a work related routine, where we find some more intensity activity in little a free time that the employ can made some sport. In the other hand, at weekend we can see better distribution of effort along the time.
-
-
-
+We can see at the graph above that activity on the weekday has the greatest peak 
+from all steps intervals. But, we can see too that weekends activities has more 
+peaks over a hundred than weekday. This could be due to the fact that activities 
+on weekdays mostly follow a work related routine, where we find some more intensity 
+activity in little a free time that the employ can made some sport. In the other 
+hand, at weekend we can see better distribution of effort along the time.
